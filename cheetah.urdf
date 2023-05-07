@@ -52,41 +52,41 @@
 		</inertial>
 	</link>
 	<!-- Joint: Back-front spine -->
-	<joint name="back_front_spine" type="fixed" >
-		<origin rpy="0 0 0" xyz="0.126 0 0"/>
-		<parent link="base_link" />
-		<child link="back_front_spine_psi" />
-	</joint>
 	<link name="back_front_spine_psi">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
-	<joint name="spine_psi" type="revolute" >
-		<limit lower="-0.52" upper="0.52"/>
-		<parent link="back_front_spine_psi" />
-		<child link="back_front_spine_theta" />
-		<axis xyz="0 0 1" />
-	</joint>
 	<link name="back_front_spine_theta">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
-	<joint name="spine_theta" type="revolute" >
-		<limit lower="-0.52" upper="0.52"/>
-		<parent link="back_front_spine_theta"/>
-		<child link="back_front_spine_phi"/>
-		<axis xyz="0 1 0" />
-	</joint>
 	<link name="back_front_spine_phi">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
+	<joint name="back_front_spine" type="fixed" >
+		<origin rpy="0 0 0" xyz="0.126 0 0"/>
+		<parent link="base_link" />
+		<child link="back_front_spine_psi" />
+	</joint>
+	<joint name="spine_psi" type="revolute" >
+		<limit lower="-0.52" upper="0.52"/>
+		<parent link="back_front_spine_psi" />
+		<child link="back_front_spine_theta" />
+		<axis xyz="0 0 1" />
+	</joint>
+	<joint name="spine_theta" type="revolute" >
+		<limit lower="-0.52" upper="0.52"/>
+		<parent link="back_front_spine_theta"/>
+		<child link="back_front_spine_phi"/>
+		<axis xyz="0 1 0" />
+	</joint>
 	<joint name="spine_phi" type="revolute" >
 		<limit lower="-0.52" upper="0.52"/>
 		<parent link="back_front_spine_phi"/>
@@ -115,41 +115,41 @@
 		</inertial>
 	</link>
 	<!-- Joint: Neck to head -->
-	<joint name="neck_spine" type="fixed" >
-		<origin rpy="0 0 0" xyz="0.378 0 0"/>
-		<parent link="front_spine_link" />
-		<child link="neck_spine_psi" />
-	</joint>
 	<link name="neck_spine_psi">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
-	<joint name="neck_psi" type="revolute" >
-		<limit lower="-0.52" upper="0.52"/>
-		<parent link="neck_spine_psi" />
-		<child link="neck_spine_theta" />
-		<axis xyz="0 0 1" />
-	</joint>
 	<link name="neck_spine_theta">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
-	<joint name="neck_theta" type="revolute" >
-		<limit lower="-0.52" upper="0.52"/>
-		<parent link="neck_spine_theta"/>
-		<child link="neck_spine_phi"/>
-		<axis xyz="0 1 0" />
-	</joint>
 	<link name="neck_spine_phi">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
+	<joint name="neck_spine" type="fixed" >
+		<origin rpy="0 0 0" xyz="0.378 0 0"/>
+		<parent link="front_spine_link" />
+		<child link="neck_spine_psi" />
+	</joint>
+	<joint name="neck_psi" type="revolute" >
+		<limit lower="-0.52" upper="0.52"/>
+		<parent link="neck_spine_psi" />
+		<child link="neck_spine_theta" />
+		<axis xyz="0 0 1" />
+	</joint>
+	<joint name="neck_theta" type="revolute" >
+		<limit lower="-0.52" upper="0.52"/>
+		<parent link="neck_spine_theta"/>
+		<child link="neck_spine_phi"/>
+		<axis xyz="0 1 0" />
+	</joint>
 	<joint name="neck_phi" type="revolute" >
 		<limit lower="-0.52" upper="0.52"/>
 		<parent link="neck_spine_phi"/>
@@ -178,29 +178,29 @@
 		</inertial>
 	</link>
 	<!-- Joint: Tail base -->
-	<joint name="tail_base" type="fixed" >
-		<origin rpy="0 0 0" xyz="-0.126 0 0"/>
-		<parent link="base_link" />
-		<child link="tail_base_psi" />
-	</joint>
 	<link name="tail_base_psi">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
-	<joint name="tail01_psi" type="revolute" >
-		<limit lower="-2.10" upper="2.10"/>
-		<parent link="tail_base_psi" />
-		<child link="tail_base_theta" />
-		<axis xyz="0 0 1" />
-	</joint>
 	<link name="tail_base_theta">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
+	<joint name="tail_base" type="fixed" >
+		<origin rpy="0 0 0" xyz="-0.126 0 0"/>
+		<parent link="base_link" />
+		<child link="tail_base_psi" />
+	</joint>
+	<joint name="tail01_psi" type="revolute" >
+		<limit lower="-2.10" upper="2.10"/>
+		<parent link="tail_base_psi" />
+		<child link="tail_base_theta" />
+		<axis xyz="0 0 1" />
+	</joint>
 	<joint name="tail01_theta" type="revolute" >
 		<limit lower="-2.10" upper="2.10"/>
 		<parent link="tail_base_theta"/>
@@ -229,29 +229,29 @@
 		</inertial>
 	</link>
 	<!-- Joint: Tail mid -->
-	<joint name="tail_mid" type="fixed" >
-		<origin rpy="0 0 0" xyz="-0.30 0 0"/>
-		<parent link="tail01_link" />
-		<child link="tail_mid_psi" />
-	</joint>
 	<link name="tail_mid_psi">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
-	<joint name="tail02_psi" type="revolute" >
-		<limit lower="-2.10" upper="2.10"/>
-		<parent link="tail_mid_psi" />
-		<child link="tail_mid_theta" />
-		<axis xyz="0 0 1" />
-	</joint>
 	<link name="tail_mid_theta">
 		<inertial>
 			<mass value="0.001"/>
 			<inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
 		</inertial>
 	</link>
+	<joint name="tail_mid" type="fixed" >
+		<origin rpy="0 0 0" xyz="-0.30 0 0"/>
+		<parent link="tail01_link" />
+		<child link="tail_mid_psi" />
+	</joint>
+	<joint name="tail02_psi" type="revolute" >
+		<limit lower="-2.10" upper="2.10"/>
+		<parent link="tail_mid_psi" />
+		<child link="tail_mid_theta" />
+		<axis xyz="0 0 1" />
+	</joint>
 	<joint name="tail02_theta" type="revolute" >
 		<limit lower="-2.10" upper="2.10"/>
 		<parent link="tail_mid_theta"/>
