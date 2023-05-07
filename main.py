@@ -1,7 +1,7 @@
 import pybullet as p
 import pickle
 import numpy as np
-from typing import Dict
+from typing import Dict, Literal
 import time
 import pybullet_data
 
@@ -34,6 +34,47 @@ hbl_pitch = [26, 24]
 ubr_pitch = [24, 26]
 lbr_pitch = [25, 27]
 hbr_pitch = [27, 28]
+
+def get_state(data: Dict, state: Literal["x", "dx"]):
+    base_1 = [data[state][frame, base_x[0]], data[state][frame, base_y[0]], data[state][frame, base_z[0]]]
+    base_2 = [data[state][frame_next, base_x[0]], data[state][frame_next, base_y[0]], data[state][frame_next, base_z[0]]]
+    base = [
+      base_1[0] + frame_residual * (base_2[0] - base_1[0]),
+      base_1[1] + frame_residual * (base_2[1] - base_1[1]),
+      base_1[2] + frame_residual * (base_2[2] - base_1[2])
+    ]
+    rot_base_1 = [data[state][frame, base_roll[0]], data[state][frame, base_pitch[0]], data[state][frame, base_yaw[0]]]
+    rot_base_2 = [data[state][frame_next, base_roll[0]], data[state][frame_next, base_pitch[0]], data[state][frame_next, base_yaw[0]]]
+    rot_base = [
+      rot_base_1[0] + frame_residual * (rot_base_2[0] - rot_base_1[0]),
+      rot_base_1[1] + frame_residual * (rot_base_2[1] - rot_base_1[1]),
+      rot_base_1[2] + frame_residual * (rot_base_2[2] - rot_base_1[2])
+    ]
+    rot_bodyF_roll = data[state][frame, bodyF_roll[0]] + frame_residual * (data[state][frame_next, bodyF_roll[0]] - data[state][frame, bodyF_roll[0]])
+    rot_bodyF_pitch = data[state][frame, bodyF_pitch[0]] + frame_residual * (data[state][frame_next, bodyF_pitch[0]] - data[state][frame, bodyF_pitch[0]])
+    rot_bodyF_yaw = data[state][frame, bodyF_yaw[0]] + frame_residual * (data[state][frame_next, bodyF_yaw[0]] - data[state][frame, bodyF_yaw[0]])
+    rot_tail1_pitch = data[state][frame, tail1_pitch[0]] + frame_residual * (data[state][frame_next, tail1_pitch[0]] - data[state][frame, tail1_pitch[0]])
+    rot_tail1_yaw = data[state][frame, tail1_yaw[0]] + frame_residual * (data[state][frame_next, tail1_yaw[0]] - data[state][frame, tail1_yaw[0]])
+    rot_tail2_pitch = data[state][frame, tail2_pitch[0]] + frame_residual * (data[state][frame_next, tail2_pitch[0]] - data[state][frame, tail2_pitch[0]])
+    rot_tail2_yaw = data[state][frame, tail2_yaw[0]] + frame_residual * (data[state][frame_next, tail2_yaw[0]] - data[state][frame, tail2_yaw[0]])
+    rot_ufl_pitch = data[state][frame, ufl_pitch[0]] + frame_residual * (data[state][frame_next, ufl_pitch[0]] - data[state][frame, ufl_pitch[0]])
+    rot_lfl_pitch = data[state][frame, lfl_pitch[0]] + frame_residual * (data[state][frame_next, lfl_pitch[0]] - data[state][frame, lfl_pitch[0]])
+    rot_hfl_pitch = data[state][frame, hfl_pitch[0]] + frame_residual * (data[state][frame_next, hfl_pitch[0]] - data[state][frame, hfl_pitch[0]])
+    rot_ufr_pitch = data[state][frame, ufr_pitch[0]] + frame_residual * (data[state][frame_next, ufr_pitch[0]] - data[state][frame, ufr_pitch[0]])
+    rot_lfr_pitch = data[state][frame, lfr_pitch[0]] + frame_residual * (data[state][frame_next, lfr_pitch[0]] - data[state][frame, lfr_pitch[0]])
+    rot_hfr_pitch = data[state][frame, hfr_pitch[0]] + frame_residual * (data[state][frame_next, hfr_pitch[0]] - data[state][frame, hfr_pitch[0]])
+    rot_ubl_pitch = data[state][frame, ubl_pitch[0]] + frame_residual * (data[state][frame_next, ubl_pitch[0]] - data[state][frame, ubl_pitch[0]])
+    rot_lbl_pitch = data[state][frame, lbl_pitch[0]] + frame_residual * (data[state][frame_next, lbl_pitch[0]] - data[state][frame, lbl_pitch[0]])
+    rot_hbl_pitch = data[state][frame, hbl_pitch[0]] + frame_residual * (data[state][frame_next, hbl_pitch[0]] - data[state][frame, hbl_pitch[0]])
+    rot_ubr_pitch = data[state][frame, ubr_pitch[0]] + frame_residual * (data[state][frame_next, ubr_pitch[0]] - data[state][frame, ubr_pitch[0]])
+    rot_lbr_pitch = data[state][frame, lbr_pitch[0]] + frame_residual * (data[state][frame_next, lbr_pitch[0]] - data[state][frame, lbr_pitch[0]])
+    rot_hbr_pitch = data[state][frame, hbr_pitch[0]] + frame_residual * (data[state][frame_next, hbr_pitch[0]] - data[state][frame, hbr_pitch[0]])
+
+    return [base, rot_base, rot_bodyF_roll, rot_bodyF_pitch, rot_bodyF_yaw,
+            rot_tail1_pitch, rot_tail1_yaw, rot_tail2_pitch, rot_tail2_yaw, rot_ufl_pitch,
+            rot_lfl_pitch, rot_hfl_pitch, rot_ufr_pitch, rot_lfr_pitch, rot_hfr_pitch, rot_ubl_pitch,
+            rot_lbl_pitch, rot_hbl_pitch, rot_ubr_pitch, rot_lbr_pitch, rot_hbr_pitch]
+
 
 def load_pickle(filename: str) -> Dict:
     """Reads data from a pickle file.
@@ -81,82 +122,35 @@ while (p.isConnected()):
     frame_residual = frame_raw - frame
 
     # Purely simulate the robot forward from previously calculated values.
-    pos_base_1 = [data["x"][frame, base_x[0]], data["x"][frame, base_y[0]], data["x"][frame, base_z[0]]]
-    pos_base_2 = [data["x"][frame_next, base_x[0]], data["x"][frame_next, base_y[0]], data["x"][frame_next, base_z[0]]]
-    pos_base = [
-      pos_base_1[0] + frame_residual * (pos_base_2[0] - pos_base_1[0]),
-      pos_base_1[1] + frame_residual * (pos_base_2[1] - pos_base_1[1]),
-      pos_base_1[2] + frame_residual * (pos_base_2[2] - pos_base_1[2])
-    ]
-    rot_base_1 = [data["x"][frame, base_roll[0]], data["x"][frame, base_pitch[0]], np.pi - data["x"][frame, base_yaw[0]]]
-    rot_base_2 = [data["x"][frame_next, base_roll[0]], data["x"][frame_next, base_pitch[0]], np.pi - data["x"][frame_next, base_yaw[0]]]
-    rot_base_euler = [
-      rot_base_1[0] + frame_residual * (rot_base_2[0] - rot_base_1[0]),
-      rot_base_1[1] + frame_residual * (rot_base_2[1] - rot_base_1[1]),
-      rot_base_1[2] + frame_residual * (rot_base_2[2] - rot_base_1[2])
-    ]
+    x = get_state(data, "x")
+    dx = get_state(data, "dx")
     # rot_base = p.getQuaternionSlerp(p.getQuaternionFromEuler([rot_base_1[0], rot_base_1[1], rot_base_1[2]]), p.getQuaternionFromEuler([rot_base_2[0], rot_base_2[1], rot_base_2[2]]), frame_residual)
-    p.resetBasePositionAndOrientation(robot, pos_base, p.getQuaternionFromEuler(rot_base_euler))
+    x[1][2] = np.pi - x[1][2]
+    p.resetBasePositionAndOrientation(robot, x[0], p.getQuaternionFromEuler(x[1]))
+    p.resetBaseVelocity(robot, dx[0], dx[1])
     # p.resetBasePositionAndOrientation(robot, pos_base, rot_base)
 
-    rot_bodyF_roll = data["x"][frame, bodyF_roll[0]] + frame_residual * (data["x"][frame_next, bodyF_roll[0]] - data["x"][frame, bodyF_roll[0]])
-    p.resetJointState(robot, bodyF_roll[1], rot_bodyF_roll)
-
-    rot_bodyF_pitch = data["x"][frame, bodyF_pitch[0]] + frame_residual * (data["x"][frame_next, bodyF_pitch[0]] - data["x"][frame, bodyF_pitch[0]])
-    p.resetJointState(robot, bodyF_pitch[1], rot_bodyF_pitch)
-
-    rot_bodyF_yaw = data["x"][frame, bodyF_yaw[0]] + frame_residual * (data["x"][frame_next, bodyF_yaw[0]] - data["x"][frame, bodyF_yaw[0]])
-    p.resetJointState(robot, bodyF_yaw[1], rot_bodyF_yaw)
-
-    rot_tail1_pitch = data["x"][frame, tail1_pitch[0]] + frame_residual * (data["x"][frame_next, tail1_pitch[0]] - data["x"][frame, tail1_pitch[0]])
-    p.resetJointState(robot, tail1_pitch[1], rot_tail1_pitch)
-
-    rot_tail1_yaw = data["x"][frame, tail1_yaw[0]] + frame_residual * (data["x"][frame_next, tail1_yaw[0]] - data["x"][frame, tail1_yaw[0]])
-    p.resetJointState(robot, tail1_yaw[1], rot_tail1_yaw)
-
-    rot_tail2_pitch = data["x"][frame, tail2_pitch[0]] + frame_residual * (data["x"][frame_next, tail2_pitch[0]] - data["x"][frame, tail2_pitch[0]])
-    p.resetJointState(robot, tail2_pitch[1], rot_tail2_pitch)
-
-    rot_tail2_yaw = data["x"][frame, tail2_yaw[0]] + frame_residual * (data["x"][frame_next, tail2_yaw[0]] - data["x"][frame, tail2_yaw[0]])
-    p.resetJointState(robot, tail2_yaw[1], rot_tail2_yaw)
-
-    rot_ufl_pitch = data["x"][frame, ufl_pitch[0]] + frame_residual * (data["x"][frame_next, ufl_pitch[0]] - data["x"][frame, ufl_pitch[0]])
-    p.resetJointState(robot, ufl_pitch[1], rot_ufl_pitch)
-
-    rot_lfl_pitch = data["x"][frame, lfl_pitch[0]] + frame_residual * (data["x"][frame_next, lfl_pitch[0]] - data["x"][frame, lfl_pitch[0]])
-    p.resetJointState(robot, lfl_pitch[1], rot_lfl_pitch)
-
-    rot_hfl_pitch = data["x"][frame, hfl_pitch[0]] + frame_residual * (data["x"][frame_next, hfl_pitch[0]] - data["x"][frame, hfl_pitch[0]])
-    p.resetJointState(robot, hfl_pitch[1], rot_hfl_pitch)
-
-    rot_ufr_pitch = data["x"][frame, ufr_pitch[0]] + frame_residual * (data["x"][frame_next, ufr_pitch[0]] - data["x"][frame, ufr_pitch[0]])
-    p.resetJointState(robot, ufr_pitch[1], rot_ufr_pitch)
-
-    rot_lfr_pitch = data["x"][frame, lfr_pitch[0]] + frame_residual * (data["x"][frame_next, lfr_pitch[0]] - data["x"][frame, lfr_pitch[0]])
-    p.resetJointState(robot, lfr_pitch[1], rot_lfr_pitch)
-
-    rot_hfr_pitch = data["x"][frame, hfr_pitch[0]] + frame_residual * (data["x"][frame_next, hfr_pitch[0]] - data["x"][frame, hfr_pitch[0]])
-    p.resetJointState(robot, hfr_pitch[1], rot_hfr_pitch)
-
-    rot_ubl_pitch = data["x"][frame, ubl_pitch[0]] + frame_residual * (data["x"][frame_next, ubl_pitch[0]] - data["x"][frame, ubl_pitch[0]])
-    p.resetJointState(robot, ubl_pitch[1], rot_ubl_pitch)
-
-    rot_lbl_pitch = data["x"][frame, lbl_pitch[0]] + frame_residual * (data["x"][frame_next, lbl_pitch[0]] - data["x"][frame, lbl_pitch[0]])
-    p.resetJointState(robot, lbl_pitch[1], rot_lbl_pitch)
-
-    rot_hbl_pitch = data["x"][frame, hbl_pitch[0]] + frame_residual * (data["x"][frame_next, hbl_pitch[0]] - data["x"][frame, hbl_pitch[0]])
-    p.resetJointState(robot, hbl_pitch[1], rot_hbl_pitch)
-
-    rot_ubr_pitch = data["x"][frame, ubr_pitch[0]] + frame_residual * (data["x"][frame_next, ubr_pitch[0]] - data["x"][frame, ubr_pitch[0]])
-    p.resetJointState(robot, ubr_pitch[1], rot_ubr_pitch)
-
-    rot_lbr_pitch = data["x"][frame, lbr_pitch[0]] + frame_residual * (data["x"][frame_next, lbr_pitch[0]] - data["x"][frame, lbr_pitch[0]])
-    p.resetJointState(robot, lbr_pitch[1], rot_lbr_pitch)
-
-    rot_hbr_pitch = data["x"][frame, hbr_pitch[0]] + frame_residual * (data["x"][frame_next, hbr_pitch[0]] - data["x"][frame, hbr_pitch[0]])
-    p.resetJointState(robot, hbr_pitch[1], rot_hbr_pitch)
+    p.resetJointState(robot, bodyF_roll[1], x[2], dx[2])
+    p.resetJointState(robot, bodyF_pitch[1], x[3], dx[3])
+    p.resetJointState(robot, bodyF_yaw[1], x[4], dx[4])
+    p.resetJointState(robot, tail1_pitch[1], x[5], dx[5])
+    p.resetJointState(robot, tail1_yaw[1], x[6], dx[6])
+    p.resetJointState(robot, tail2_pitch[1], x[7], dx[7])
+    p.resetJointState(robot, tail2_yaw[1], x[8], dx[8])
+    p.resetJointState(robot, ufl_pitch[1], x[9], dx[9])
+    p.resetJointState(robot, lfl_pitch[1], x[10], dx[10])
+    p.resetJointState(robot, hfl_pitch[1], x[11], dx[11])
+    p.resetJointState(robot, ufr_pitch[1], x[12], dx[12])
+    p.resetJointState(robot, lfr_pitch[1], x[13], dx[13])
+    p.resetJointState(robot, hfr_pitch[1], x[14], dx[14])
+    p.resetJointState(robot, ubl_pitch[1], x[15], dx[15])
+    p.resetJointState(robot, lbl_pitch[1], x[16], dx[16])
+    p.resetJointState(robot, hbl_pitch[1], x[17], dx[17])
+    p.resetJointState(robot, ubr_pitch[1], x[18], dx[18])
+    p.resetJointState(robot, lbr_pitch[1], x[19], dx[19])
+    p.resetJointState(robot, hbr_pitch[1], x[20], dx[20])
 
     p.stepSimulation()
 
-    time.sleep(1.0 / 240.0)
+    time.sleep(1.0 / 200.0)
 p.disconnect()
