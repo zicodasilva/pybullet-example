@@ -35,6 +35,31 @@ ubr_pitch = [24, 26]
 lbr_pitch = [25, 27]
 hbr_pitch = [27, 28]
 
+joint_idx = [
+    bodyF_roll[1],
+    bodyF_pitch[1],
+    bodyF_yaw[1],
+    neck_roll[1],
+    neck_pitch[1],
+    neck_yaw[1],
+    tail1_pitch[1],
+    tail1_yaw[1],
+    tail2_pitch[1],
+    tail2_yaw[1],
+    ufl_pitch[1],
+    lfl_pitch[1],
+    hfl_pitch[1],
+    ufr_pitch[1],
+    lfr_pitch[1],
+    hfr_pitch[1],
+    ubl_pitch[1],
+    lbl_pitch[1],
+    hbl_pitch[1],
+    ubr_pitch[1],
+    lbr_pitch[1],
+    hbr_pitch[1]
+]
+
 def get_state(data: Dict, i: int, i_1: int, delta_i: float, state: Literal["x", "dx"]):
     base_1 = [data[state][i, base_x[0]], data[state][i, base_y[0]], data[state][i, base_z[0]]]
     base_2 = [data[state][i_1, base_x[0]], data[state][i_1, base_y[0]], data[state][i_1, base_z[0]]]
@@ -53,6 +78,9 @@ def get_state(data: Dict, i: int, i_1: int, delta_i: float, state: Literal["x", 
     rot_bodyF_roll = data[state][i, bodyF_roll[0]] + delta_i * (data[state][i_1, bodyF_roll[0]] - data[state][i, bodyF_roll[0]])
     rot_bodyF_pitch = data[state][i, bodyF_pitch[0]] + delta_i * (data[state][i_1, bodyF_pitch[0]] - data[state][i, bodyF_pitch[0]])
     rot_bodyF_yaw = data[state][i, bodyF_yaw[0]] + delta_i * (data[state][i_1, bodyF_yaw[0]] - data[state][i, bodyF_yaw[0]])
+    rot_neck_roll = data[state][i, neck_roll[0]] + delta_i * (data[state][i_1, neck_roll[0]] - data[state][i, neck_roll[0]])
+    rot_neck_pitch = data[state][i, neck_pitch[0]] + delta_i * (data[state][i_1, neck_pitch[0]] - data[state][i, neck_pitch[0]])
+    rot_neck_yaw = data[state][i, neck_yaw[0]] + delta_i * (data[state][i_1, neck_yaw[0]] - data[state][i, neck_yaw[0]])
     rot_tail1_pitch = data[state][i, tail1_pitch[0]] + delta_i * (data[state][i_1, tail1_pitch[0]] - data[state][i, tail1_pitch[0]])
     rot_tail1_yaw = data[state][i, tail1_yaw[0]] + delta_i * (data[state][i_1, tail1_yaw[0]] - data[state][i, tail1_yaw[0]])
     rot_tail2_pitch = data[state][i, tail2_pitch[0]] + delta_i * (data[state][i_1, tail2_pitch[0]] - data[state][i, tail2_pitch[0]])
@@ -71,51 +99,24 @@ def get_state(data: Dict, i: int, i_1: int, delta_i: float, state: Literal["x", 
     rot_hbr_pitch = data[state][i, hbr_pitch[0]] + delta_i * (data[state][i_1, hbr_pitch[0]] - data[state][i, hbr_pitch[0]])
 
     return [base, rot_base, rot_bodyF_roll, rot_bodyF_pitch, rot_bodyF_yaw,
+            rot_neck_roll, rot_neck_pitch, rot_neck_yaw,
             rot_tail1_pitch, rot_tail1_yaw, rot_tail2_pitch, rot_tail2_yaw, rot_ufl_pitch,
             rot_lfl_pitch, rot_hfl_pitch, rot_ufr_pitch, rot_lfr_pitch, rot_hfr_pitch, rot_ubl_pitch,
             rot_lbl_pitch, rot_hbl_pitch, rot_ubr_pitch, rot_lbr_pitch, rot_hbr_pitch]
 
 def reset_joint_state(pos, vel):
-    p.resetJointState(robot, bodyF_roll[1], pos[2], vel[2])
-    p.resetJointState(robot, bodyF_pitch[1], pos[3], vel[3])
-    p.resetJointState(robot, bodyF_yaw[1], pos[4], vel[4])
-    p.resetJointState(robot, tail1_pitch[1], pos[5], vel[5])
-    p.resetJointState(robot, tail1_yaw[1], pos[6], vel[6])
-    p.resetJointState(robot, tail2_pitch[1], pos[7], vel[7])
-    p.resetJointState(robot, tail2_yaw[1], pos[8], vel[8])
-    p.resetJointState(robot, ufl_pitch[1], pos[9], vel[9])
-    p.resetJointState(robot, lfl_pitch[1], pos[10], vel[10])
-    p.resetJointState(robot, hfl_pitch[1], pos[11], vel[11])
-    p.resetJointState(robot, ufr_pitch[1], pos[12], vel[12])
-    p.resetJointState(robot, lfr_pitch[1], pos[13], vel[13])
-    p.resetJointState(robot, hfr_pitch[1], pos[14], vel[14])
-    p.resetJointState(robot, ubl_pitch[1], pos[15], vel[15])
-    p.resetJointState(robot, lbl_pitch[1], pos[16], vel[16])
-    p.resetJointState(robot, hbl_pitch[1], pos[17], vel[17])
-    p.resetJointState(robot, ubr_pitch[1], pos[18], vel[18])
-    p.resetJointState(robot, lbr_pitch[1], pos[19], vel[19])
-    p.resetJointState(robot, hbr_pitch[1], pos[20], vel[20])
+    for i in range(len(joint_idx)):
+        p.resetJointStateMultiDof(robot, joint_idx[i], [pos[i+2]])
 
-def set_joint_target(pos, gain: float, max_force: float):
-    p.setJointMotorControl2(robot, bodyF_roll[1], p.POSITION_CONTROL, targetPosition=pos[2], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, bodyF_pitch[1], p.POSITION_CONTROL, targetPosition=pos[3], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, bodyF_yaw[1], p.POSITION_CONTROL, targetPosition=pos[4], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, tail1_pitch[1], p.POSITION_CONTROL, targetPosition=pos[5], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, tail1_yaw[1], p.POSITION_CONTROL, targetPosition=pos[6], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, tail2_pitch[1], p.POSITION_CONTROL, targetPosition=pos[7], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, tail2_yaw[1], p.POSITION_CONTROL, targetPosition=pos[8], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, ufl_pitch[1], p.POSITION_CONTROL, targetPosition=pos[9], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, lfl_pitch[1], p.POSITION_CONTROL, targetPosition=pos[10], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, hfl_pitch[1], p.POSITION_CONTROL, targetPosition=pos[11], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, ufr_pitch[1], p.POSITION_CONTROL, targetPosition=pos[12], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, lfr_pitch[1], p.POSITION_CONTROL, targetPosition=pos[13], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, hfr_pitch[1], p.POSITION_CONTROL, targetPosition=pos[14], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, ubl_pitch[1], p.POSITION_CONTROL, targetPosition=pos[15], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, lbl_pitch[1], p.POSITION_CONTROL, targetPosition=pos[16], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, hbl_pitch[1], p.POSITION_CONTROL, targetPosition=pos[17], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, ubr_pitch[1], p.POSITION_CONTROL, targetPosition=pos[18], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, lbr_pitch[1], p.POSITION_CONTROL, targetPosition=pos[19], positionGain=gain, force=max_force)
-    p.setJointMotorControl2(robot, hbr_pitch[1], p.POSITION_CONTROL, targetPosition=pos[20], positionGain=gain, force=max_force)
+def set_joint_target(pos, vel, kp: float, kd: float, max_force: float):
+    p.setJointMotorControlArray(robot,
+                                joint_idx,
+                                p.POSITION_CONTROL,
+                                targetPositions=pos[2:],
+                                # targetVelocities=vel[2:],
+                                positionGains=[kp]*(len(joint_idx)),
+                                # velocityGains=[kd]*len(joint_idx),
+                                forces=[max_force]*len(joint_idx))
 
 def load_pickle(filename: str) -> Dict:
     """Reads data from a pickle file.
@@ -131,13 +132,17 @@ def load_pickle(filename: str) -> Dict:
 
 # Load data.
 data = load_pickle("fte.pickle")
-physicsClient = p.connect(p.GUI, options="--mp4=\"test.mp4\" --mp4fps=240")
+physicsClient = p.connect(p.GUI)
 # physicsClient = p.connect(p.GUI, options="--mp4=\"test.mp4\" --mp4fps=240")
-time_step = 1.0 / 240.0
+time_step = 1.0 / 200.0
 # p.setPhysicsEngineParameter(fixedTimeStep=time_step)
-robot = p.loadURDF("cheetah.urdf", useFixedBase=False)
+# p.setTimeOut(10000)
+use_fixed_base = False
+robot = p.loadURDF("cheetah.urdf", useFixedBase=use_fixed_base)
+# p.configureDebugVisualizer(p.COV_ENABLE_SINGLE_STEP_RENDERING, 1)
 p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
-planeId = p.loadURDF("plane.urdf")
+# p.setRealTimeSimulation(1)
+# planeId = p.loadURDF("plane.urdf")
 print(f"# of Joints in robot: {p.getNumJoints(robot)}")
 reset_state = False
 # Initialise data.
@@ -154,11 +159,12 @@ reset_joint_state(init_x, init_dx)
 for j in range(p.getNumJoints(robot)):
     joint_info = p.getJointInfo(robot, j)
     if reset_state:
-        p.setJointMotorControl2(robot, j, p.VELOCITY_CONTROL, targetVelocity=0.0, force=10.0)
-
-cid = p.createConstraint(robot, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, 0], [0, 0, 0])
+        p.setJointMotorControl2(robot, j, p.POSITION_CONTROL, targetPosition=0.0, targetVelocity=0.0, positionGain=0.0, force=0.0)
+if not reset_state and not use_fixed_base:
+    cid = p.createConstraint(robot, -1, -1, -1, p.JOINT_FIXED, [0, 0, 0], [0, 0, 0], [0, 0, 0])
 frame_raw = -1
 frame_prev = -1
+p.setGravity(0, 0, 0)
 while (p.isConnected()):
     # Frame management.
     run_mode = p.readUserDebugParameter(run_mode_id)
@@ -175,33 +181,32 @@ while (p.isConnected()):
     frame_residual = frame_raw - frame
 
     # Purely simulate the robot forward from previously calculated values.
-    if frame_prev == frame:
-        time.sleep(time_step)
-        continue
-
     x = get_state(data, frame, frame_next, frame_residual, "x")
     dx = get_state(data, frame, frame_next, frame_residual, "dx")
     # rot_base = p.getQuaternionSlerp(p.getQuaternionFromEuler([rot_base_1[0], rot_base_1[1], rot_base_1[2]]), p.getQuaternionFromEuler([rot_base_2[0], rot_base_2[1], rot_base_2[2]]), frame_residual)
     x[1][2] = np.pi - x[1][2]
-
-    if frame_raw == 0:
-        p.resetBasePositionAndOrientation(robot, x[0], p.getQuaternionFromEuler(x[1]))
-        p.resetBaseVelocity(robot, dx[0], dx[1])
-        # p.resetBasePositionAndOrientation(robot, pos_base, rot_base)
-        reset_joint_state(x, dx)
-
+    # p.setGravity(0, 0, -9.81)
     if reset_state:
-        p.setGravity(0, 0, -9.81)
         p.resetBasePositionAndOrientation(robot, x[0], p.getQuaternionFromEuler(x[1]))
-        p.resetBaseVelocity(robot, dx[0], dx[1])
+        # p.resetBaseVelocity(robot, dx[0], dx[1])
         # p.resetBasePositionAndOrientation(robot, pos_base, rot_base)
-        reset_joint_state(x, dx)
+        reset_joint_state(x, None)
     else:
-        set_joint_target(x, 0.3, 1000.0)
-        p.changeConstraint(cid, jointChildPivot=x[0], jointChildFrameOrientation=p.getQuaternionFromEuler(x[1]), maxForce=1000.0)
+        if not use_fixed_base:
+            if frame_raw == 0:
+                p.resetBasePositionAndOrientation(robot, x[0], p.getQuaternionFromEuler(x[1]))
+                p.resetBaseVelocity(robot, dx[0], dx[1])
+            p.changeConstraint(cid, jointChildPivot=x[0], jointChildFrameOrientation=p.getQuaternionFromEuler(x[1]), maxForce=50.0)
+        set_joint_target(x, dx, 0.2, 100.0, 1000.0)
 
     p.stepSimulation()
 
-    time.sleep(time_step)
+    distances = []
+    for j in range(len(joint_idx)):
+        jointState = p.getJointState(robot, joint_idx[j])
+        distances.append(x[j + 2] - jointState[0])
+
+    print(f"RMSE error: {np.linalg.norm(distances):.3f}")
     frame_prev = frame
+    time.sleep(time_step)
 p.disconnect()
